@@ -68,6 +68,15 @@ message HashResponse {
     string message = 1;
 }
 
+// Define the message types
+message AddCodeRequest {
+    int32 number = 1;
+}
+
+message AddCodeResponse {
+    string message = 1;
+}
+
 // The Node service definition.
 service Node {
   // Sends a join request to the node.
@@ -90,4 +99,8 @@ service Node {
 
   // Receber o hash que será procurado na dht
   rpc ReceiveHash(HashRequest) returns (HashResponse) {}
+
+  // enviar um inteiro
+  rpc AddCode(AddCodeRequest) returns (AddCodeResponse) {}
+
 }
