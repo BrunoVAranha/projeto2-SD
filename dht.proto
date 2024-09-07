@@ -4,8 +4,9 @@ package dht;
 
 // The request message containing the node ID and port.
 message JoinRequest {
-  int32 node_id = 1;
-  int32 port = 2;
+  string node_id = 1;
+  int32 node_num = 2;
+  int32 port = 3;
 }
 
 // The response message confirming the join request.
@@ -15,7 +16,7 @@ message JoinResponse {
 
 // The request message containing the node ID to update.
 message UpdateNodeRequest {
-  int32 node_id = 1;
+  int32 node_num = 1;
 }
 
 // The response message confirming the update.
@@ -24,7 +25,8 @@ message UpdateNodeResponse {
 }
 
 message UpdatePredecessorRequest {
-  int32 node_id = 1;
+  string node_id = 1;
+  int32 node_num = 2;
 }
 
 message UpdatePredecessorResponse {
@@ -32,7 +34,8 @@ message UpdatePredecessorResponse {
 }
 
 message UpdateSucessorRequest {
-  int32 node_id = 1;
+  string node_id = 1;
+  int32 node_num = 2;
 }
 
 message UpdateSucessorResponse {
@@ -41,13 +44,12 @@ message UpdateSucessorResponse {
 
 // The request message containing the node ID.
 message NodeQueryRequest {
-  int32 node_id = 1;
 }
 
 // The response message containing the node's successor and predecessor.
 message NodeQueryResponse {
-  int32 successor = 1;
-  int32 predecessor = 2;
+  string successor = 1;
+  string predecessor = 2;
 }
 
 // Define the message types
@@ -59,22 +61,30 @@ message IntResponse {
     string message = 1;
 }
 
-message HashRequest {
-    string hash = 1;
-    int32 value =2;
-}
-
-message HashResponse {
-    string message = 1;
-}
-
 // Define the message types
 message AddCodeRequest {
-    int32 number = 1;
+    string code_id = 1;
+    int32 code_num = 2;
 }
 
 message AddCodeResponse {
     string message = 1;
+}
+
+// The request message containing no data, just a ping
+message PingRequest {}
+
+// The response message containing a status message
+message PingResponse {
+  bool is_alive = 1;
+}
+
+message LookUpRequest{
+  string code = 1;
+}
+
+message LookUpResponse{
+  string url = 1;
 }
 
 // The Node service definition.
@@ -97,10 +107,12 @@ service Node {
   // Method that takes an integer and returns an acknowledgment
   rpc SendInt(IntRequest) returns (IntResponse) {}
 
-  // Receber o hash que será procurado na dht
-  rpc ReceiveHash(HashRequest) returns (HashResponse) {}
-
   // enviar um inteiro
   rpc AddCode(AddCodeRequest) returns (AddCodeResponse) {}
+
+  // verificar se a porta está sendo usadaS
+  rpc Ping (PingRequest) returns (PingResponse);
+
+  rpc LookUp(LookUpRequest) returns (LookUpResponse);
 
 }

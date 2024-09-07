@@ -70,15 +70,20 @@ class NodeStub(object):
                 request_serializer=dht__pb2.IntRequest.SerializeToString,
                 response_deserializer=dht__pb2.IntResponse.FromString,
                 _registered_method=True)
-        self.ReceiveHash = channel.unary_unary(
-                '/dht.Node/ReceiveHash',
-                request_serializer=dht__pb2.HashRequest.SerializeToString,
-                response_deserializer=dht__pb2.HashResponse.FromString,
-                _registered_method=True)
         self.AddCode = channel.unary_unary(
                 '/dht.Node/AddCode',
                 request_serializer=dht__pb2.AddCodeRequest.SerializeToString,
                 response_deserializer=dht__pb2.AddCodeResponse.FromString,
+                _registered_method=True)
+        self.Ping = channel.unary_unary(
+                '/dht.Node/Ping',
+                request_serializer=dht__pb2.PingRequest.SerializeToString,
+                response_deserializer=dht__pb2.PingResponse.FromString,
+                _registered_method=True)
+        self.LookUp = channel.unary_unary(
+                '/dht.Node/LookUp',
+                request_serializer=dht__pb2.LookUpRequest.SerializeToString,
+                response_deserializer=dht__pb2.LookUpResponse.FromString,
                 _registered_method=True)
 
 
@@ -128,16 +133,22 @@ class NodeServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ReceiveHash(self, request, context):
-        """Receber o hash que será procurado na dht
+    def AddCode(self, request, context):
+        """enviar um inteiro
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def AddCode(self, request, context):
-        """enviar um inteiro
+    def Ping(self, request, context):
+        """verificar se a porta está sendo usadaS
         """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def LookUp(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -175,15 +186,20 @@ def add_NodeServicer_to_server(servicer, server):
                     request_deserializer=dht__pb2.IntRequest.FromString,
                     response_serializer=dht__pb2.IntResponse.SerializeToString,
             ),
-            'ReceiveHash': grpc.unary_unary_rpc_method_handler(
-                    servicer.ReceiveHash,
-                    request_deserializer=dht__pb2.HashRequest.FromString,
-                    response_serializer=dht__pb2.HashResponse.SerializeToString,
-            ),
             'AddCode': grpc.unary_unary_rpc_method_handler(
                     servicer.AddCode,
                     request_deserializer=dht__pb2.AddCodeRequest.FromString,
                     response_serializer=dht__pb2.AddCodeResponse.SerializeToString,
+            ),
+            'Ping': grpc.unary_unary_rpc_method_handler(
+                    servicer.Ping,
+                    request_deserializer=dht__pb2.PingRequest.FromString,
+                    response_serializer=dht__pb2.PingResponse.SerializeToString,
+            ),
+            'LookUp': grpc.unary_unary_rpc_method_handler(
+                    servicer.LookUp,
+                    request_deserializer=dht__pb2.LookUpRequest.FromString,
+                    response_serializer=dht__pb2.LookUpResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -360,33 +376,6 @@ class Node(object):
             _registered_method=True)
 
     @staticmethod
-    def ReceiveHash(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/dht.Node/ReceiveHash',
-            dht__pb2.HashRequest.SerializeToString,
-            dht__pb2.HashResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
     def AddCode(request,
             target,
             options=(),
@@ -403,6 +392,60 @@ class Node(object):
             '/dht.Node/AddCode',
             dht__pb2.AddCodeRequest.SerializeToString,
             dht__pb2.AddCodeResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Ping(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/dht.Node/Ping',
+            dht__pb2.PingRequest.SerializeToString,
+            dht__pb2.PingResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def LookUp(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/dht.Node/LookUp',
+            dht__pb2.LookUpRequest.SerializeToString,
+            dht__pb2.LookUpResponse.FromString,
             options,
             channel_credentials,
             insecure,

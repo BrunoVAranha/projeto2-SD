@@ -1,18 +1,17 @@
 import grpc
 import dht_pb2
 import dht_pb2_grpc
+import webbrowser
 
-def run():
-    # Connect to the server
-    with grpc.insecure_channel('localhost:50000') as channel:
+def lookup_value(code):
+    with grpc.insecure_channel('localhost:55000') as channel:
         stub = dht_pb2_grpc.NodeStub(channel)
         
-        # The integer to send
-        number = 42  # Replace with your integer
+        urlResponse = stub.LookUp(dht_pb2.LookUpRequest(code=code))
         
-        # Send the integer to the server
-        response = stub.SendInt(dht_pb2.IntRequest(number=number))
-        print(f"Server response: {response.message}")
+        print(urlResponse.url)
+        webbrowser.open(urlResponse.url)
 
 if __name__ == '__main__':
-    run()
+    code = input("Codigo de erro: ")  # Set your lookup code here
+    lookup_value(code)

@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tdht.proto\x12\x03\x64ht\",\n\x0bJoinRequest\x12\x0f\n\x07node_id\x18\x01 \x01(\x05\x12\x0c\n\x04port\x18\x02 \x01(\x05\"\x1f\n\x0cJoinResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"$\n\x11UpdateNodeRequest\x12\x0f\n\x07node_id\x18\x01 \x01(\x05\"%\n\x12UpdateNodeResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"+\n\x18UpdatePredecessorRequest\x12\x0f\n\x07node_id\x18\x01 \x01(\x05\",\n\x19UpdatePredecessorResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"(\n\x15UpdateSucessorRequest\x12\x0f\n\x07node_id\x18\x01 \x01(\x05\")\n\x16UpdateSucessorResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"#\n\x10NodeQueryRequest\x12\x0f\n\x07node_id\x18\x01 \x01(\x05\";\n\x11NodeQueryResponse\x12\x11\n\tsuccessor\x18\x01 \x01(\x05\x12\x13\n\x0bpredecessor\x18\x02 \x01(\x05\"\x1c\n\nIntRequest\x12\x0e\n\x06number\x18\x01 \x01(\x05\"\x1e\n\x0bIntResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"*\n\x0bHashRequest\x12\x0c\n\x04hash\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05\"\x1f\n\x0cHashResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\" \n\x0e\x41\x64\x64\x43odeRequest\x12\x0e\n\x06number\x18\x01 \x01(\x05\"\"\n\x0f\x41\x64\x64\x43odeResponse\x12\x0f\n\x07message\x18\x01 \x01(\t2\xeb\x03\n\x04Node\x12+\n\x04Join\x12\x10.dht.JoinRequest\x1a\x11.dht.JoinResponse\x12:\n\tQueryNode\x12\x15.dht.NodeQueryRequest\x1a\x16.dht.NodeQueryResponse\x12=\n\nUpdateNode\x12\x16.dht.UpdateNodeRequest\x1a\x17.dht.UpdateNodeResponse\x12R\n\x11UpdatePredecessor\x12\x1d.dht.UpdatePredecessorRequest\x1a\x1e.dht.UpdatePredecessorResponse\x12I\n\x0eUpdateSucessor\x12\x1a.dht.UpdateSucessorRequest\x1a\x1b.dht.UpdateSucessorResponse\x12.\n\x07SendInt\x12\x0f.dht.IntRequest\x1a\x10.dht.IntResponse\"\x00\x12\x34\n\x0bReceiveHash\x12\x10.dht.HashRequest\x1a\x11.dht.HashResponse\"\x00\x12\x36\n\x07\x41\x64\x64\x43ode\x12\x13.dht.AddCodeRequest\x1a\x14.dht.AddCodeResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tdht.proto\x12\x03\x64ht\">\n\x0bJoinRequest\x12\x0f\n\x07node_id\x18\x01 \x01(\t\x12\x10\n\x08node_num\x18\x02 \x01(\x05\x12\x0c\n\x04port\x18\x03 \x01(\x05\"\x1f\n\x0cJoinResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"%\n\x11UpdateNodeRequest\x12\x10\n\x08node_num\x18\x01 \x01(\x05\"%\n\x12UpdateNodeResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"=\n\x18UpdatePredecessorRequest\x12\x0f\n\x07node_id\x18\x01 \x01(\t\x12\x10\n\x08node_num\x18\x02 \x01(\x05\",\n\x19UpdatePredecessorResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\":\n\x15UpdateSucessorRequest\x12\x0f\n\x07node_id\x18\x01 \x01(\t\x12\x10\n\x08node_num\x18\x02 \x01(\x05\")\n\x16UpdateSucessorResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\x12\n\x10NodeQueryRequest\";\n\x11NodeQueryResponse\x12\x11\n\tsuccessor\x18\x01 \x01(\t\x12\x13\n\x0bpredecessor\x18\x02 \x01(\t\"\x1c\n\nIntRequest\x12\x0e\n\x06number\x18\x01 \x01(\x05\"\x1e\n\x0bIntResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"3\n\x0e\x41\x64\x64\x43odeRequest\x12\x0f\n\x07\x63ode_id\x18\x01 \x01(\t\x12\x10\n\x08\x63ode_num\x18\x02 \x01(\x05\"\"\n\x0f\x41\x64\x64\x43odeResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"\r\n\x0bPingRequest\" \n\x0cPingResponse\x12\x10\n\x08is_alive\x18\x01 \x01(\x08\"\x1d\n\rLookUpRequest\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\"\x1d\n\x0eLookUpResponse\x12\x0b\n\x03url\x18\x01 \x01(\t2\x95\x04\n\x04Node\x12+\n\x04Join\x12\x10.dht.JoinRequest\x1a\x11.dht.JoinResponse\x12:\n\tQueryNode\x12\x15.dht.NodeQueryRequest\x1a\x16.dht.NodeQueryResponse\x12=\n\nUpdateNode\x12\x16.dht.UpdateNodeRequest\x1a\x17.dht.UpdateNodeResponse\x12R\n\x11UpdatePredecessor\x12\x1d.dht.UpdatePredecessorRequest\x1a\x1e.dht.UpdatePredecessorResponse\x12I\n\x0eUpdateSucessor\x12\x1a.dht.UpdateSucessorRequest\x1a\x1b.dht.UpdateSucessorResponse\x12.\n\x07SendInt\x12\x0f.dht.IntRequest\x1a\x10.dht.IntResponse\"\x00\x12\x36\n\x07\x41\x64\x64\x43ode\x12\x13.dht.AddCodeRequest\x1a\x14.dht.AddCodeResponse\"\x00\x12+\n\x04Ping\x12\x10.dht.PingRequest\x1a\x11.dht.PingResponse\x12\x31\n\x06LookUp\x12\x12.dht.LookUpRequest\x1a\x13.dht.LookUpResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -22,37 +22,41 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'dht_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_JOINREQUEST']._serialized_start=18
-  _globals['_JOINREQUEST']._serialized_end=62
-  _globals['_JOINRESPONSE']._serialized_start=64
-  _globals['_JOINRESPONSE']._serialized_end=95
-  _globals['_UPDATENODEREQUEST']._serialized_start=97
-  _globals['_UPDATENODEREQUEST']._serialized_end=133
-  _globals['_UPDATENODERESPONSE']._serialized_start=135
-  _globals['_UPDATENODERESPONSE']._serialized_end=172
-  _globals['_UPDATEPREDECESSORREQUEST']._serialized_start=174
-  _globals['_UPDATEPREDECESSORREQUEST']._serialized_end=217
-  _globals['_UPDATEPREDECESSORRESPONSE']._serialized_start=219
-  _globals['_UPDATEPREDECESSORRESPONSE']._serialized_end=263
-  _globals['_UPDATESUCESSORREQUEST']._serialized_start=265
-  _globals['_UPDATESUCESSORREQUEST']._serialized_end=305
-  _globals['_UPDATESUCESSORRESPONSE']._serialized_start=307
-  _globals['_UPDATESUCESSORRESPONSE']._serialized_end=348
-  _globals['_NODEQUERYREQUEST']._serialized_start=350
-  _globals['_NODEQUERYREQUEST']._serialized_end=385
-  _globals['_NODEQUERYRESPONSE']._serialized_start=387
-  _globals['_NODEQUERYRESPONSE']._serialized_end=446
-  _globals['_INTREQUEST']._serialized_start=448
-  _globals['_INTREQUEST']._serialized_end=476
-  _globals['_INTRESPONSE']._serialized_start=478
-  _globals['_INTRESPONSE']._serialized_end=508
-  _globals['_HASHREQUEST']._serialized_start=510
-  _globals['_HASHREQUEST']._serialized_end=552
-  _globals['_HASHRESPONSE']._serialized_start=554
-  _globals['_HASHRESPONSE']._serialized_end=585
-  _globals['_ADDCODEREQUEST']._serialized_start=587
-  _globals['_ADDCODEREQUEST']._serialized_end=619
-  _globals['_ADDCODERESPONSE']._serialized_start=621
-  _globals['_ADDCODERESPONSE']._serialized_end=655
-  _globals['_NODE']._serialized_start=658
-  _globals['_NODE']._serialized_end=1149
+  _globals['_JOINREQUEST']._serialized_end=80
+  _globals['_JOINRESPONSE']._serialized_start=82
+  _globals['_JOINRESPONSE']._serialized_end=113
+  _globals['_UPDATENODEREQUEST']._serialized_start=115
+  _globals['_UPDATENODEREQUEST']._serialized_end=152
+  _globals['_UPDATENODERESPONSE']._serialized_start=154
+  _globals['_UPDATENODERESPONSE']._serialized_end=191
+  _globals['_UPDATEPREDECESSORREQUEST']._serialized_start=193
+  _globals['_UPDATEPREDECESSORREQUEST']._serialized_end=254
+  _globals['_UPDATEPREDECESSORRESPONSE']._serialized_start=256
+  _globals['_UPDATEPREDECESSORRESPONSE']._serialized_end=300
+  _globals['_UPDATESUCESSORREQUEST']._serialized_start=302
+  _globals['_UPDATESUCESSORREQUEST']._serialized_end=360
+  _globals['_UPDATESUCESSORRESPONSE']._serialized_start=362
+  _globals['_UPDATESUCESSORRESPONSE']._serialized_end=403
+  _globals['_NODEQUERYREQUEST']._serialized_start=405
+  _globals['_NODEQUERYREQUEST']._serialized_end=423
+  _globals['_NODEQUERYRESPONSE']._serialized_start=425
+  _globals['_NODEQUERYRESPONSE']._serialized_end=484
+  _globals['_INTREQUEST']._serialized_start=486
+  _globals['_INTREQUEST']._serialized_end=514
+  _globals['_INTRESPONSE']._serialized_start=516
+  _globals['_INTRESPONSE']._serialized_end=546
+  _globals['_ADDCODEREQUEST']._serialized_start=548
+  _globals['_ADDCODEREQUEST']._serialized_end=599
+  _globals['_ADDCODERESPONSE']._serialized_start=601
+  _globals['_ADDCODERESPONSE']._serialized_end=635
+  _globals['_PINGREQUEST']._serialized_start=637
+  _globals['_PINGREQUEST']._serialized_end=650
+  _globals['_PINGRESPONSE']._serialized_start=652
+  _globals['_PINGRESPONSE']._serialized_end=684
+  _globals['_LOOKUPREQUEST']._serialized_start=686
+  _globals['_LOOKUPREQUEST']._serialized_end=715
+  _globals['_LOOKUPRESPONSE']._serialized_start=717
+  _globals['_LOOKUPRESPONSE']._serialized_end=746
+  _globals['_NODE']._serialized_start=749
+  _globals['_NODE']._serialized_end=1282
 # @@protoc_insertion_point(module_scope)
