@@ -87,6 +87,15 @@ message LookUpResponse{
   string url = 1;
 }
 
+message SendContentRequest{
+  int32 key = 1;
+  string value = 2;
+}
+
+message SendContentResponse{
+  bool success = 1;
+}
+
 // The Node service definition.
 service Node {
   // Sends a join request to the node.
@@ -114,5 +123,7 @@ service Node {
   rpc Ping (PingRequest) returns (PingResponse);
 
   rpc LookUp(LookUpRequest) returns (LookUpResponse);
+
+  rpc SendContent(SendContentRequest) returns (SendContentResponse);
 
 }

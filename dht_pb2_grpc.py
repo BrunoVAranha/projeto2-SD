@@ -85,6 +85,11 @@ class NodeStub(object):
                 request_serializer=dht__pb2.LookUpRequest.SerializeToString,
                 response_deserializer=dht__pb2.LookUpResponse.FromString,
                 _registered_method=True)
+        self.SendContent = channel.unary_unary(
+                '/dht.Node/SendContent',
+                request_serializer=dht__pb2.SendContentRequest.SerializeToString,
+                response_deserializer=dht__pb2.SendContentResponse.FromString,
+                _registered_method=True)
 
 
 class NodeServicer(object):
@@ -153,6 +158,12 @@ class NodeServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def SendContent(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_NodeServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -200,6 +211,11 @@ def add_NodeServicer_to_server(servicer, server):
                     servicer.LookUp,
                     request_deserializer=dht__pb2.LookUpRequest.FromString,
                     response_serializer=dht__pb2.LookUpResponse.SerializeToString,
+            ),
+            'SendContent': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendContent,
+                    request_deserializer=dht__pb2.SendContentRequest.FromString,
+                    response_serializer=dht__pb2.SendContentResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -446,6 +462,33 @@ class Node(object):
             '/dht.Node/LookUp',
             dht__pb2.LookUpRequest.SerializeToString,
             dht__pb2.LookUpResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SendContent(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/dht.Node/SendContent',
+            dht__pb2.SendContentRequest.SerializeToString,
+            dht__pb2.SendContentResponse.FromString,
             options,
             channel_credentials,
             insecure,

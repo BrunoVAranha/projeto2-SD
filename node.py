@@ -5,6 +5,12 @@ import dht_pb2
 import dht_pb2_grpc
 import hashlib
 import random
+import threading
+import os
+####remover logs do grpc
+os.environ['GRPC_VERBOSITY'] = 'ERROR'
+os.environ['GRPC_TRACE'] = ''
+#####################
 
 # Define a classe Node, que representa um único nó na DHT
 class Node(dht_pb2_grpc.NodeServicer):
@@ -30,13 +36,16 @@ class Node(dht_pb2_grpc.NodeServicer):
         if request.node_id == self.node_id:
             print("Nó já existente.")
             return dht_pb2.JoinResponse(success=False)
-        elif self.successor == sha256_to_range(0) and hex_string_to_int(request.node_id) > hex_string_to_int(self.node_id):
+        ## só é possivel um nó ser maior que seu sucessor se ele for o ultimo do anel
+        elif hex_string_to_int(self.node_id) > hex_string_to_int(self.successor) and hex_string_to_int(request.node_id) > hex_string_to_int(self.node_id):
             print("Fim do anel!")
             # atualizar predecessor e sucessor do nó que entrou na DHT e agora é o último
             with grpc.insecure_channel(f'localhost:{request.port}') as channel:
                 stub = dht_pb2_grpc.NodeStub(channel)
                 stub.UpdatePredecessor(dht_pb2.UpdatePredecessorRequest(node_id = self.node_id, node_num = self.node_num))
-                stub.UpdateSucessor(dht_pb2.UpdateSucessorRequest(node_id= sha256_to_range(0), node_num = 0))
+                for key, value in self.data.items():
+                    check_values(key, value, request.node_id, self.predecessor_port)
+                stub.UpdateSucessor(dht_pb2.UpdateSucessorRequest(node_id= self.successor, node_num = self.successor_port - 55000))
             #####
             # atualizar predecessor e sucessor dos nós que já estão na DHT
             with grpc.insecure_channel(f'localhost:{self.successor_port}') as channel:
@@ -52,7 +61,6 @@ class Node(dht_pb2_grpc.NodeServicer):
                 stub = dht_pb2_grpc.NodeStub(channel)
                 stub.Join(dht_pb2.JoinRequest(node_id = request.node_id, node_num=request.node_num, port=request.port))
         elif hex_string_to_int(request.node_id) < hex_string_to_int(self.node_id):
-            print("aquiiii")
             # atualizar predecessor e sucessor do nó que entrou na DHT
             with grpc.insecure_channel(f'localhost:{request.port}') as channel:
                 stub = dht_pb2_grpc.NodeStub(channel)
@@ -66,8 +74,12 @@ class Node(dht_pb2_grpc.NodeServicer):
             self.predecessor = request.node_id
             self.predecessor_port = 55000 + request.node_num
             print(f"meu novo predecessor é {self.predecessor} na porta {self.predecessor_port}")
+            for key, value in self.data.items():
+                check_values(key, value, request.node_id, self.predecessor_port)    
             #####
+
         return dht_pb2.JoinResponse(success=True)
+
 
     def QueryNode(self, request, context):
         # Retorna o sucessor e o predecessor do nó consultado
@@ -86,13 +98,13 @@ class Node(dht_pb2_grpc.NodeServicer):
         return dht_pb2.UpdateSucessorResponse(success=True)
     
     def AddCode(self, request, context):
-        print(f"meu id é {self.node_id}")
-        print(request)
-        print(hex_string_to_int(request.code_id))
-        print(hex_string_to_int(self.node_id))
+        # print(f"meu id é {self.node_id}")
+        # print(request)
+        # print(hex_string_to_int(request.code_id))
+        # print(hex_string_to_int(self.node_id))
         # se o conteúdo for menor ou igual ao identificador do nó, incluir nos seus dados
         if hex_string_to_int(request.code_id) == hex_string_to_int(self.node_id):
-            print("Sou igual ao nó. Fico aqui.")
+            # print("Sou igual ao nó. Fico aqui.")
             self.data[request.code_num] = request.code_id
 
         elif hex_string_to_int(request.code_id) < hex_string_to_int(self.node_id):
@@ -124,7 +136,7 @@ class Node(dht_pb2_grpc.NodeServicer):
                     stub = dht_pb2_grpc.NodeStub(channel)
                     stub.AddCode(dht_pb2.AddCodeRequest(code_id =request.code_id, code_num = request.code_num))
 
-        print(f"Sou o nó {self.node_num} com id {self.node_id} e sou responsável por: {self.data}")
+        print(f"Sou o nó {self.node_id} e sou responsável por: {self.data}")
         return dht_pb2.AddCodeResponse(message="Conteúdo inserido")
     
     
@@ -157,7 +169,7 @@ class Node(dht_pb2_grpc.NodeServicer):
                             print(url)
                             return dht_pb2.LookUpResponse(url=url)
                 else:
-                    ## enviar request ASSINCRONO para o predecessor
+                    ## enviar request para o predecessor
                     with grpc.insecure_channel(f'localhost:{self.predecessor_port}') as channel:
                         stub = dht_pb2_grpc.NodeStub(channel)
                         return stub.LookUp(dht_pb2.LookUpRequest(code=lookUp))
@@ -170,7 +182,7 @@ class Node(dht_pb2_grpc.NodeServicer):
                         return dht_pb2.LookUpResponse(url=url)
         ## joinId maior do que o nó
         else :
-            print("Sou maior do que o nó.")
+            # print("Sou maior do que o nó.")
             ## O nó atual tem id menor do que seu predecessor. Isso só acontece para o primeiro nó do anel.
             if hex_string_to_int(self.node_id) < hex_string_to_int(self.predecessor) and hex_string_to_int(lookUp) > hex_string_to_int(self.predecessor):
                 for key, value in self.data.items():
@@ -180,20 +192,38 @@ class Node(dht_pb2_grpc.NodeServicer):
                         print(url)
                         return dht_pb2.LookUpResponse(url=url)
             else:
-                ## por fim, se nenhuma condição for atingida, fazer chamada ASSINCRONA para sucessor
+                ## por fim, se nenhuma condição for atingida, fazer chamada para sucessor
                 with grpc.insecure_channel(f'localhost:{self.successor_port}') as channel:
                     stub = dht_pb2_grpc.NodeStub(channel)
                     return stub.LookUp(dht_pb2.LookUpRequest(code=lookUp))
-
+                
+    def SendContent(self, request, context):
+        self.data[request.key] = request.value
+        print(f"o conteudo {request.key}:{request.value} agora é meu")
+        return dht_pb2.SendContentResponse(success = True)
+                
+def check_values(key, value, node_id, predecessor_port):
+    if hex_string_to_int(value) <= hex_string_to_int(node_id):
+        print(f"enviando o conteudo {key}:{value}")
+        with grpc.insecure_channel(f'localhost:{predecessor_port}') as channel:
+            stub = dht_pb2_grpc.NodeStub(channel)
+            stub.SendContent(dht_pb2.SendContentRequest(key = key, value = value))   
     
-def popular_dht():
-        http_status_codes = [100, 101, 102, 200, 201, 202, 204, 301, 302, 304, 400, 401, 403, 404, 405, 409, 418, 500, 501, 502, 503, 504, 505]
+def distribute_content():
+        http_status_codes = [100, 101, 102, 103,
+                            200, 201, 202, 203, 204, 205, 206, 207, 208, 214, 226,
+                            300, 301, 302, 303, 304, 305, 307, 308,
+                            400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410,
+                            411, 412, 413, 414, 415, 416, 417, 418, 420, 421, 422, 423, 424, 425, 426, 428, 429, 431, 444, 450, 451, 497, 498, 499,
+                            500, 501, 502, 503, 504, 506, 507, 508, 509, 510, 511, 521, 522, 523, 525, 530, 599]
+        
         for code in http_status_codes:
             with grpc.insecure_channel(f'localhost:55000') as channel:
                 stub = dht_pb2_grpc.NodeStub(channel)
                 print(f"enviando {code}")
                 print(f"hash: {sha256_to_range(code)}")
                 print(f"enviado: {stub.AddCode(dht_pb2.AddCodeRequest(code_id=sha256_to_range(code), code_num = code))}")
+
 def ping():
     try:
         with grpc.insecure_channel(f'localhost:55000') as channel:
@@ -228,8 +258,27 @@ def sha256_to_range(value: int) -> str:
     hex_value = hex(mapped_value)[2:]
 
     return hex_value
+
+def transfer_content(data, successor_port):
+    for key, value in data.items():
+        with grpc.insecure_channel(f'localhost:{successor_port}') as channel:
+                stub = dht_pb2_grpc.NodeStub(channel)
+                stub.SendContent(dht_pb2.SendContentRequest(key = key, value = value))   
                 
+
+
+def stop_node(stop_event):
+    """Stop the node if user types 'END'."""
+    while True:
+        user_input = input()
+        if user_input.strip().upper() == "END":
+            stop_event.set()  # Parar a thread prrincipal
+            break
+
 def start_node():
+    # Evento utilizado para parar todas as threads
+    stop_event = threading.Event()
+
     # pingar a porta 55000 para saber se já existe uma DHT
     if not ping():
         node_num = 0
@@ -237,8 +286,9 @@ def start_node():
         node_id = sha256_to_range(0)
         node = Node(node_num, port, node_id)
         print(f"Sou o primeiro nó")
-        print(f"Nó {node_num} rodando na porta {port}")
+        print(f"Nó rodando na porta {port}")
         print(f"ID: {node_id}")
+        print(f"ID_int: {hex_string_to_int(node_id)}")
         print(node.predecessor)
         print(node.successor)
     else:
@@ -249,6 +299,8 @@ def start_node():
 
         print(f"Nó {node_num} rodando na porta {port}")
         print(f"ID: {sha256_to_range(node_num)}")
+        print(f"ID_int: {hex_string_to_int(node_id)}")
+
 
         # verificar se o nó 0 possui 'empty' como sucessor/predecessor
         with grpc.insecure_channel('localhost:55000') as channel:
@@ -266,16 +318,16 @@ def start_node():
                 # Nó zero tem o novo nó como sucessor e predecessor
                 with grpc.insecure_channel(f'localhost:55000') as channel:
                     stub = dht_pb2_grpc.NodeStub(channel)
-                    stub.UpdatePredecessor(dht_pb2.UpdatePredecessorRequest(node_id = node_id, node_num = node_num))
-                    stub.UpdateSucessor(dht_pb2.UpdateSucessorRequest(node_id = node_id, node_num = node_num))
+                    stub.UpdatePredecessor(dht_pb2.UpdatePredecessorRequest(node_id=node_id, node_num=node_num))
+                    stub.UpdateSucessor(dht_pb2.UpdateSucessorRequest(node_id=node_id, node_num=node_num))
 
                 # O primeiro nó a entrar na DHT tem zero como sucessor e predecessor
                 node.successor = sha256_to_range(0)
                 node.predecessor = sha256_to_range(0)
                 node.successor_port = 55000
                 node.predecessor_port = 55000
-                print(f"Nó {node_num} atualizado: Sucessor = {node.successor} com porta {node.successor_port}")
-                print(f"Nó {node_num} atualizado: Predecessor = {node.predecessor} com porta {node.predecessor_port}")
+                print(f"Nó atualizado: Sucessor = {node.successor} com porta {node.successor_port}")
+                print(f"Nó atualizado: Predecessor = {node.predecessor} com porta {node.predecessor_port}")
             # enviar solicitação de junção para o nó 0
             else:
                 print("entrei")
@@ -283,15 +335,36 @@ def start_node():
                 with grpc.insecure_channel('localhost:55000') as channel:
                     stub = dht_pb2_grpc.NodeStub(channel)
 
-                    response = stub.Join(dht_pb2.JoinRequest(node_id = node_id, node_num = node_num, port = port))
+                    response = stub.Join(dht_pb2.JoinRequest(node_id=node_id, node_num=node_num, port=port))
                     print(f"Solicitação de junção enviada, resposta: {response.success}")
 
+    # Start a thread to listen for 'END' command to stop the node.
+    input_thread = threading.Thread(target=stop_node, args=(stop_event,))
+    input_thread.start()
+
     try:
-        while True:
-            time.sleep(86400)  # Nó roda indefinidamente
+        while not stop_event.is_set():  # Main loop will check the stop_event
+            time.sleep(1)  # Main thread keeps running until 'END' is typed
     except KeyboardInterrupt:
-        print("Desligando o nó.")
-        node.server.stop(0)
+        print("Ctrl+C.")
+
+    print(f"Enviando meu conteúdo para {node.successor} na porta {node.successor_port}")
+
+    transfer_content(node.data, node.successor_port)
+    #### o sucessor do nó que está saindo, agora tem o precedessor do nó que está saindo como seu novo predecessor
+    with grpc.insecure_channel(f'localhost:{node.successor_port}') as channel:
+        stub = dht_pb2_grpc.NodeStub(channel)
+        stub.UpdatePredecessor(dht_pb2.UpdatePredecessorRequest(node_id = node.predecessor, node_num = node.predecessor_port - 55000))
+    #### o predecessor do nó que está saindo, agora tem o sucessor do nó que está saindo como seu novo sucessor
+    with grpc.insecure_channel(f'localhost:{node.predecessor_port}') as channel:
+        stub = dht_pb2_grpc.NodeStub(channel)
+        # Consultar o nó 0 para seu sucessor e predecessor
+        stub.UpdateSucessor(dht_pb2.UpdateSucessorRequest(node_id = node.successor, node_num = node.successor_port - 55000))
+
+    print("Nó desligado.")
+    node.server.stop(0)
+    input_thread.join()  # Ensure the input thread is also stopped
+
 
 if __name__ == '__main__':
     # Solicitar entrada de ID do nó
@@ -299,4 +372,4 @@ if __name__ == '__main__':
     if operacao == 'C' or operacao == 'c':
         start_node()
     elif operacao == 'P' or operacao == 'p':
-        popular_dht()
+        distribute_content()

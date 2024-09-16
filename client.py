@@ -2,6 +2,11 @@ import grpc
 import dht_pb2
 import dht_pb2_grpc
 import webbrowser
+import os
+####remover logs do grpc
+os.environ['GRPC_VERBOSITY'] = 'ERROR'
+os.environ['GRPC_TRACE'] = ''
+#####################
 
 def lookup_value(code):
     with grpc.insecure_channel('localhost:55000') as channel:
